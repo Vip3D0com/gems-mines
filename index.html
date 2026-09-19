@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEMS MINES VIP - ULTIMATE</title>
+    <style>
+        :root { 
+            --gold: #ffd700; 
+            --blue: #00d4ff; 
+            --neon: 0 0 15px rgba(255, 215, 0, 0.7); 
+            --win-green: #2ecc71;
+        }
+        * { box-sizing: border-box; direction: ltr !important; } 
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #000; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        
+        .status-bar { position: absolute; top: 0; width: 100%; background: rgba(0, 212, 255, 0.1); border-bottom: 1px solid var(--blue); padding: 5px 0; overflow: hidden; white-space: nowrap; z-index: 10; }
+        .status-text { display: inline-block; animation: scrollText 15s linear infinite; color: var(--blue); font-size: 11px; font-weight: bold; }
+        @keyframes scrollText { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        
+        .container { background: rgba(0, 10, 25, 0.98); border: 2px solid var(--gold); padding: 35px 25px; border-radius: 30px; text-align: center; width: 340px; box-shadow: var(--neon); position: relative; backdrop-filter: blur(10px); }
+        .neon-line { position: absolute; top: -2px; left: 50%; transform: translateX(-50%); width: 120px; height: 4px; background: var(--gold); box-shadow: 0 0 15px var(--gold); border-radius: 10px; }
+        .title { font-size: 24px; color: var(--gold); margin-bottom: 25px; font-weight: 900; text-shadow: 0 0 15px var(--gold); }
+        
+        .btn-3d { width: 100%; padding: 15px; margin: 8px 0; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.2s; }
+        .btn-gold { background: linear-gradient(145deg, #ffd700, #b8860b); color: #000; box-shadow: 0 5px 0 #8a6d00; }
+        .btn-gold:active { transform: translateY(3px); box-shadow: 0 2px 0 #8a6d00; }
+        .btn-blue { background: transparent; color: var(--blue); border: 1px solid var(--blue); box-shadow: 0 0 10px rgba(0, 212, 255, 0.3); }
+        .btn-blue:active { transform: scale(0.98); }
+        
+        input { width: 100%; padding: 15px; margin-bottom: 12px; border-radius: 12px; border: 1px solid #1a3a5a; background: #000; color: var(--blue); text-align: center; font-size: 18px; outline: none; }
+        .grid { display: grid; grid-template-columns: repeat(5, 52px); gap: 8px; justify-content: center; margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.5); border-radius: 15px; }
+        .cell { width: 52px; height: 52px; background: #0a1a2a; border: 1px solid #1a3a5a; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; transition: 0.3s; }
+        
+        .loader-box { background: #000000 !important; border: 2px solid var(--blue) !important; box-shadow: 0 0 20px rgba(0, 212, 255, 0.5) !important; }
+        .spin-circle { width: 55px; height: 55px; border: 5px solid #111; border-top: 5px solid var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .progress-bar { width: 100%; height: 4px; background: #111; border-radius: 2px; margin-top: 15px; position: relative; overflow: hidden; }
+        .progress-line { position: absolute; height: 100%; width: 40%; background: var(--blue); animation: loadMove 2s infinite linear; }
+        @keyframes loadMove { from { left: -40%; } to { left: 100%; } }
+
+        .hidden { display: none !important; }
+        #music-ctrl { position: absolute; bottom: 20px; right: 20px; background: none; border: 1px solid var(--gold); color: var(--gold); border-radius: 50%; width: 40px; height: 40px; cursor: pointer; z-index: 20; }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" type="audio/mpeg"></audio>
+    <audio id="click-sound"><source src="https://www.myinstants.com/media/sounds/button-3.mp3" type="audio/mpeg"></audio>
+
+    <button id="music-ctrl" onclick="toggleMusic()">🔊</button>
+
+    <div class="status-bar">
+        <div class="status-text">SYSTEM ONLINE... SCANNING GRID V3... NEXT ROUND READY... AI-MINES ACTIVE...</div>
+    </div>
+
+    <div id="screen-pass" class="container">
+        <div class="neon-line"></div>
+        <div class="title">SECURE LOGIN</div>
+        <input type="password" id="mainKey" placeholder="PASSWORD">
+        <button class="btn-3d btn-gold" onclick="login()">UNLOCK</button>
+    </div>
+
+    <div id="screen-choice" class="container hidden">
+        <div class="neon-line"></div>
+        <div class="title">LEVEL</div>
+        <button class="btn-3d btn-gold" onclick="playClick(); showID()">FREE TRIAL</button>
+        <button class="btn-3d btn-blue" style="border-color: #f00; color: #f00;" onclick="playClick(); vipAccess()">VIP PRO</button>
+    </div>
+
+    <div id="screen-id" class="container hidden">
+        <div class="neon-line"></div>
+        <div class="title">VERIFY ID</div>
+        <input type="text" id="pID" placeholder="PLAYER ID">
+        <button class="btn-3d btn-gold" onclick="playClick(); checkID()">CONNECT</button>
+    </div>
+
+    <div id="screen-loading" class="container loader-box hidden">
+        <div class="spin-circle"></div>
+        <div id="load-text" style="font-family: monospace; font-size: 16px; color: #fff; font-weight: bold; letter-spacing: 1px;">يتم الاتصال بخادمك...</div>
+        <div class="progress-bar"><div class="progress-line"></div></div>
+    </div>
+
+    <div id="screen-game" class="container hidden">
+        <div class="neon-line"></div>
+        <div class="title" id="game-title">RADAR</div>
+        <div class="grid" id="gameGrid"></div>
+        <div style="margin: 15px 0; font-size: 14px; color: var(--blue);">
+            💎: <span id="gems-count">0</span> | 💣: <span id="bombs-count">0</span>
+        </div>
+        <button class="btn-3d btn-blue" onclick="playClick(); renderGrid()">NEXT ROUND ⟳</button>
+        <button id="rescanBtn" class="btn-3d btn-gold" style="font-size: 14px;" onclick="playClick(); rescan()">RE-SCAN AREA</button>
+    </div>
+
+    <script>
+        const allowedIDs = ["20040088"];
+        const music = document.getElementById('bg-music');
+        const clickSnd = document.getElementById('click-sound');
+        let tries = localStorage.getItem('monthlyTries') ? parseInt(localStorage.getItem('monthlyTries')) : 10;
+        
+        let lastBombs = [];
+
+        function playClick() { clickSnd.play(); }
+        function toggleMusic() {
+            if (music.paused) { music.play(); document.getElementById('music-ctrl').innerText = "🔊"; }
+            else { music.pause(); document.getElementById('music-ctrl').innerText = "🔈"; }
+        }
+
+        function login() {
+            playClick();
+            if(document.getElementById('mainKey').value.trim() === "151633") {
+                music.play();
+                hideAll(); document.getElementById('screen-choice').classList.remove('hidden');
+            } else alert("WRONG KEY!");
+        }
+
+        function hideAll() { document.querySelectorAll('.container').forEach(c => c.classList.add('hidden')); }
+        function showID() { hideAll(); document.getElementById('screen-id').classList.remove('hidden'); }
+        
+        function vipAccess() {
+            let p = prompt("VIP KEY:");
+            if(p === "15254897") {
+                hideAll(); document.getElementById('screen-game').classList.remove('hidden');
+                document.getElementById('game-title').innerText = "VIP RADAR";
+                renderGrid();
+            } else alert("DENIED!");
+        }
+
+        function checkID() {
+            const typedID = document.getElementById('pID').value.trim();
+            if(allowedIDs.includes(typedID)) {
+                
+                hideAll(); 
+                const loadingScreen = document.getElementById('screen-loading');
+                const loadText = document.getElementById('load-text');
+                loadingScreen.classList.remove('hidden');
+                
+                setTimeout(() => { 
+                    loadText.innerText = "جاري فحص بروتوكول الحماية..."; 
+                    loadText.style.color = "var(--blue)";
+                }, 1500);
+                
+                setTimeout(() => { 
+                    loadText.innerText = "تم تأمين الاتصال.. جاري الدخول"; 
+                    loadText.style.color = "var(--win-green)";
+                }, 3000);
+
+                setTimeout(() => {
+                    loadingScreen.classList.add('hidden');
+                    document.getElementById('screen-game').classList.remove('hidden');
+                    renderGrid();
+                }, 4500);
+
+            } else alert("ID NOT REGISTERED!");
+        }
+
+        function generateSmartBombs() {
+            let bombs = [];
+            if (lastBombs.length > 0 && Math.random() < 0.5) {
+                bombs.push(lastBombs[Math.floor(Math.random() * lastBombs.length)]);
+            }
+            
+            while(bombs.length < 2) {
+                let r = Math.floor(Math.random() * 25);
+                if(!bombs.includes(r)) bombs.push(r);
+            }
+            lastBombs = bombs;
+            return bombs;
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('gameGrid');
+            grid.innerHTML = "";
+            document.getElementById('gems-count').innerText = "0";
+            document.getElementById('bombs-count').innerText = "0";
+            
+            const currentBombs = generateSmartBombs();
+
+            for(let i=0; i<25; i++) {
+                let cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.onclick = () => {
+                    playClick();
+                    if(cell.innerHTML !== "") return;
+                    if(currentBombs.includes(i)) {
+                        cell.innerHTML = "💣"; 
+                        cell.style.background = "rgba(255,0,0,0.3)";
+                        cell.style.borderColor = "#f00";
+                        document.getElementById('bombs-count').innerText = 
+                            parseInt(document.getElementById('bombs-count').innerText) + 1;
+                    } else {
+                        cell.innerHTML = "💎"; 
+                        cell.style.background = "rgba(0,212,255,0.2)";
+                        let g = document.getElementById('gems-count');
+                        g.innerText = parseInt(g.innerText) + 1;
+                    }
+                };
+                grid.appendChild(cell);
+            }
+        }
+
+        function rescan() {
+            if(tries > 0) {
+                tries--;
+                localStorage.setItem('monthlyTries', tries);
+                renderGrid();
+                alert("AI Rescan Complete. Tries left: " + tries);
+            } else alert("Monthly Scan Limit Reached!");
+        }
+    </script>
+</body>
+</html>
